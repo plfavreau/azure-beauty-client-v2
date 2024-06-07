@@ -1,113 +1,227 @@
-import Image from "next/image";
+'use client';
+
+import { Cross2Icon } from '@radix-ui/react-icons';
+import { motion } from 'framer-motion';
+import { Inter } from 'next/font/google';
+import Image from 'next/image';
+import { useState } from 'react';
+import { DownArrow } from './components/iconsComponents/DownArrow';
+import MagicWandIcon from './components/iconsComponents/MagicWand';
+import { mockFaces } from './assets/data/mockFaces';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [rating, setRating] = useState<number | null>(null);
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+        setRating(null); // Reset rating when a new image is uploaded
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const deleteImage = () => {
+    setSelectedImage(null);
+    setRating(null);
+  };
+
+  const analyzeImage = () => {
+    // Simulate an ML prediction
+    const randomRating = Math.floor(Math.random() * 5) + 1;
+    setRating(randomRating);
+  };
+
+  const getRatingMessage = (rating: number | null) => {
+    if (rating === null) return '';
+    const messages = [
+      '😢 Oh no! Better luck next time.',
+      '😐 Meh, not bad, not great.',
+      "😊 Nice! You're pretty good.",
+      '😎 Awesome! Almost perfect.',
+      "🤩 Wow! You're a superstar!",
+    ];
+    return messages[rating - 1];
+  };
+
+  return (
+    <main
+      className={`flex flex-col items-center min-h-screen p-24 ${inter.className}`}
+    >
+      {/* Logo Section */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className='absolute top-0 left-0 m-4'
+      >
         <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
+          className='rounded-3xl'
+          src='/azure_beauty.png'
+          alt='Azure Beauty Logo'
+          width={100}
           height={37}
           priority
         />
-      </div>
+      </motion.div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      {/* Title and Catchlines Section */}
+      <section className='text-center mb-12'>
+        <motion.h1
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className='text-5xl font-bold mb-4'
         >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          Azure Beauty Reveal
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className='text-lg mb-8'
+        >
+          Do you really need surgery ?
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className='text-lg font-semibold'
+        >
+          Join the <strong>thousands</strong> of satisfied users...
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className='mt-6'
+        ></motion.div>
+      </section>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      {/* Carousel Section */}
+      <section className='w-full mb-12'>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          className='relative overflow-hidden'
         >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+          <div className='flex space-x-4 animate-scroll border border-neutral-200/30 p-8'>
+            {mockFaces.concat(mockFaces).map((face, index) => (
+              <div
+                draggable
+                key={index}
+                className='flex-shrink-0 w-48 p-4 bg-white rounded-lg shadow-md dark:bg-neutral-500/10'
+              >
+                <div className='relative'>
+                  <Image
+                    src={face.src}
+                    alt={`Face ${index + 1}`}
+                    width={224}
+                    height={224}
+                    className='rounded-lg mb-4'
+                  />
+                  <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-black/10 pointer-events-none rounded-lg'></div>
+                </div>
+                <h3 className='text-lg font-semibold'>
+                  {face.name || 'Anonymous'}
+                </h3>
+                <p className='text-sm text-gray-400'>{face.quote}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      <motion.div
+        className='flex flex-col items-center w-full mb-12'
+        initial={{ opacity: 0, y: -42 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 1, bounce: 0.5 }}
+      >
+        <div className='text-lg font-bold mb-3'>✨ Try it by yourself! ✨</div>
+        <div
+          className='hover:bg-gray-100 hover:dark:bg-neutral-600/40 rounded-3xl p-2 cursor-pointer flex justify-center w-fit'
+          onClick={() => {
+            // scroll to the bottom of the page
+            window.scrollTo({
+              top: document.body.scrollHeight,
+              behavior: 'smooth',
+            });
+          }}
         >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+          <DownArrow />
+        </div>
+      </motion.div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      {/* Spacer Section to force scroll */}
+      <section className='h-64'></section>
+
+      {/* Tool Section */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className='flex w-full flex-col items-center rounded-2xl mt-4 p-4 lg:items-start lg:flex-row border-neutral-700 bg-gray-100 dark:bg-neutral-800/30'
+      >
+        <div className='group rounded-lg border border-transparent px-5 py-4 transition-colors mb-10 lg:mb-0 lg:mr-10'>
+          <h2 className='mb-3 text-2xl font-semibold'>Upload Image</h2>
+          {!selectedImage && (
+            <label className='block mb-3'>
+              <span className='sr-only'>Choose File</span>
+              <input
+                type='file'
+                accept='image/*'
+                onChange={handleImageUpload}
+                className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100'
+              />
+            </label>
+          )}
+          {selectedImage && (
+            <div className='relative inline-block'>
+              <Image
+                src={selectedImage}
+                alt='Uploaded Image'
+                width={200}
+                height={200}
+                className='rounded-lg'
+              />
+              <button
+                onClick={deleteImage}
+                className='absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-75 hover:opacity-100 shadow-black shadow-xl m-1'
+              >
+                <Cross2Icon />
+              </button>
+              <button
+                onClick={analyzeImage}
+                className='mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+              >
+                Analyze
+                <div className='pl-2'>
+                  <MagicWandIcon />
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {rating !== null && (
+          <div className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:bg-gray-100  hover:dark:bg-neutral-800/30'>
+            <h2 className='mb-3 text-2xl font-semibold'>Rating</h2>
+            <div className='mt-4 text-xl font-bold'>
+              Rating: {rating} out of 5
+              <p className='text-lg mt-2'>{getRatingMessage(rating)}</p>
+            </div>
+          </div>
+        )}
+      </motion.section>
     </main>
   );
 }
