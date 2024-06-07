@@ -1,6 +1,10 @@
 'use client';
 
-import { Cross2Icon } from '@radix-ui/react-icons';
+import {
+  Cross2Icon,
+  DoubleArrowRightIcon,
+  SymbolIcon,
+} from '@radix-ui/react-icons';
 import { motion } from 'framer-motion';
 import { Inter } from 'next/font/google';
 import Image from 'next/image';
@@ -14,6 +18,7 @@ const inter = Inter({ subsets: ['latin'] });
 export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [rating, setRating] = useState<number | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -32,10 +37,18 @@ export default function Home() {
     setRating(null);
   };
 
-  const analyzeImage = () => {
+  const analyzeImage = async () => {
     // Simulate an ML prediction
     const randomRating = Math.floor(Math.random() * 5) + 1;
-    setRating(randomRating);
+    setIsProcessing(true);
+    const predictionResponse = await makePrediction(selectedImage as string);
+    if (!predictionResponse) {
+      setIsProcessing(false);
+      return;
+    }
+    const rating = getRatingFromPrediction(predictionResponse);
+    setIsProcessing(false);
+    setRating(rating);
   };
 
   const getRatingMessage = (rating: number | null) => {
@@ -161,15 +174,13 @@ export default function Home() {
         </div>
       </motion.div>
 
-      {/* Spacer Section to force scroll */}
-      <section className='h-64'></section>
+      <section className='h-28'></section>
 
-      {/* Tool Section */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1 }}
-        className='flex w-full flex-col items-center rounded-2xl mt-4 p-4 lg:items-start lg:flex-row border-neutral-700 bg-gray-100 dark:bg-neutral-800/30'
+        className='flex w-full flex-col items-center border justify-around rounded-2xl mt-4 p-4 lg:items-start lg:flex-row border-neutral-700 bg-gray-100 dark:bg-neutral-800/30'
       >
         <div className='group rounded-lg border border-transparent px-5 py-4 transition-colors mb-10 lg:mb-0 lg:mr-10'>
           <h2 className='mb-3 text-2xl font-semibold'>Upload Image</h2>
@@ -185,34 +196,60 @@ export default function Home() {
             </label>
           )}
           {selectedImage && (
-            <div className='relative inline-block'>
-              <Image
-                src={selectedImage}
-                alt='Uploaded Image'
-                width={200}
-                height={200}
-                className='rounded-lg'
-              />
-              <button
-                onClick={deleteImage}
-                className='absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-75 hover:opacity-100 shadow-black shadow-xl m-1'
-              >
-                <Cross2Icon />
-              </button>
-              <button
-                onClick={analyzeImage}
-                className='mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-              >
-                Analyze
-                <div className='pl-2'>
-                  <MagicWandIcon />
+            <div className='flex flex-row items-center justify-center space-x-8'>
+              <div className='relative inline-block'>
+                <Image
+                  src={selectedImage}
+                  alt='Uploaded Image'
+                  width={200}
+                  height={200}
+                  className='rounded-lg'
+                />
+                <button
+                  onClick={deleteImage}
+                  className='absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-75 hover:opacity-100 shadow-black shadow-xl m-1'
+                >
+                  <Cross2Icon />
+                </button>
+              </div>
+              <div className='flex flex-row items-center space-x-8'>
+                <div className='pt-3'>
+                  <DoubleArrowRightIcon />
                 </div>
-              </button>
+                <button
+                  onClick={analyzeImage}
+                  className='mt-4 inline-flex items-center h-12 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                >
+                  {isProcessing ? 'Processing...' : 'Analyze Image'}
+                  <div className='pl-2'>
+                    {!isProcessing ? (
+                      <MagicWandIcon />
+                    ) : (
+                      <div className='animate-spin'>
+                        <SymbolIcon />
+                      </div>
+                    )}
+                  </div>
+                </button>
+                {rating !== null && (
+                  <div
+                    className={`flex space-x-8 justify-center  items-center ${isProcessing && 'animate-pulse'}`}
+                  >
+                    <div className='pt-3'>
+                      <DoubleArrowRightIcon />
+                    </div>
+                    <div>
+                      Rating: {rating} out of 5
+                      <p className='text-lg mt-2'>{getRatingMessage(rating)}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
 
-        {rating !== null && (
+        {/* {rating !== null && (
           <div className='group rounded-lg border border-transparent px-5 py-4 transition-colors hover:bg-gray-100  hover:dark:bg-neutral-800/30'>
             <h2 className='mb-3 text-2xl font-semibold'>Rating</h2>
             <div className='mt-4 text-xl font-bold'>
@@ -220,8 +257,103 @@ export default function Home() {
               <p className='text-lg mt-2'>{getRatingMessage(rating)}</p>
             </div>
           </div>
-        )}
+        )} */}
       </motion.section>
     </main>
   );
+}
+// {
+//     "id": "70604ad6-8db4-44a9-b1b8-e24f67c6cfda",
+//     "project": "eaec1732-b7f7-462b-baf8-46d9ba7aedc2",
+//     "iteration": "f2bd2ea7-fe7c-41cf-8fbf-a3d06bad44f7",
+//     "created": "2024-06-07T13:27:56.131Z",
+//     "predictions": [
+//         {
+//             "probability": 0.9201728,
+//             "tagId": "ee4a294a-711a-47ca-bc2c-2a3b40b8ff2c",
+//             "tagName": "3"
+//         },
+//         {
+//             "probability": 0.05030095,
+//             "tagId": "585dc096-2db1-4698-bbb1-393b4eec1a73",
+//             "tagName": "4"
+//         },
+//         {
+//             "probability": 0.029526105,
+//             "tagId": "269d7c4f-b596-49d3-a988-74751e7ac598",
+//             "tagName": "2"
+//         },
+//         {
+//             "probability": 5.7301055E-08,
+//             "tagId": "94de266d-6af0-4584-9b0c-69f4d7ef7571",
+//             "tagName": "1"
+//         },
+//         {
+//             "probability": 4.3157595E-08,
+//             "tagId": "3054fead-006b-41ee-9bc8-ec637457ef15",
+//             "tagName": "5"
+//         }
+//     ]
+// }
+interface PredictionResponse {
+  id: string;
+  project: string;
+  iteration: string;
+  created: string;
+  predictions: Prediction[];
+}
+
+interface Prediction {
+  probability: number;
+  tagId: string;
+  tagName: string;
+}
+
+async function makePrediction(
+  image: string,
+): Promise<PredictionResponse | undefined> {
+  // Convert Base64 image to Blob
+  const base64Response = await fetch(image);
+  const blob = await base64Response.blob();
+
+  const myHeaders = new Headers();
+  myHeaders.append('Prediction-Key', 'fec306f015044fde8a6c87b9a5adbbc7');
+
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: blob,
+  };
+
+  try {
+    const response = await fetch(
+      'https://projetazureprediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/eaec1732-b7f7-462b-baf8-46d9ba7aedc2/classify/iterations/Iteration1/image',
+      requestOptions,
+    );
+
+    if (!response.ok) {
+      alert(`An error occurred: ${response.statusText}`);
+      return undefined;
+    }
+
+    const predictionResponse: PredictionResponse = await response.json();
+    return predictionResponse;
+  } catch (error) {
+    alert('An error occurred while making the prediction');
+    return undefined;
+  }
+}
+
+function getRatingFromPrediction(
+  predictionResponse: PredictionResponse,
+): number {
+  const finalRating: number = predictionResponse.predictions.reduce(
+    (acc, prediction) => {
+      const tagName = parseInt(prediction.tagName);
+      return acc + prediction.probability * tagName;
+    },
+    0,
+  );
+  console.log('finalRating', finalRating);
+  return Math.round(finalRating * 100) / 100;
 }
