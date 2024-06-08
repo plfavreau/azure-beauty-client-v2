@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { mockFaces } from './assets/data/mockFaces';
 import { DownArrow } from './components/iconsComponents/DownArrow';
 import MagicWandIcon from './components/iconsComponents/MagicWand';
+import { v4 as uuidv4 } from 'uuid';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,23 +28,17 @@ export default function Home() {
   const handleRateClick = async (rating: number | undefined) => {
     try {
       setCurrentFaceToRate(null);
-      const response = await fetch('/api/fetch-random-face');
-      const data = await response.json();
-      if (response.ok) {
-        setCurrentFaceToRate(data.image);
-        if (!rating) return;
-        console.log('Fetched image:', data.image);
 
-        // Create a Blob from the base64 image
-        const base64Response = await fetch(data.image);
+      if (rating && currentFaceToRate) {
+        const base64Response = await fetch(currentFaceToRate);
         const blob = await base64Response.blob();
+        // rename the blob file
 
-        // Create FormData and append the Blob
         const formData = new FormData();
-        formData.append('file', blob, 'face.jpg');
-
-        // Send FormData to the Next.js API route
-        // /api/upload-to-pilouorg
+        const fileUuid = uuidv4();
+        const fileName = `${rating}_${fileUuid}.jpg`;
+        formData.append('file', blob, fileName);
+        formData.append('fileName', fileName);
         const uploadResponse = await fetch(
           'https://www.pilou.org/azure_beauty_project/upload/',
           {
@@ -55,15 +50,21 @@ export default function Home() {
         if (uploadResponse.ok) {
           console.log('Image uploaded successfully');
         } else {
-          console.error('Image upload failed');
+          alert('Failed to upload image :/');
         }
+      }
+
+      const response = await fetch('/api/fetch-random-face');
+      const data = await response.json();
+      if (response.ok) {
+        setCurrentFaceToRate(data.image);
       } else {
         setCurrentFaceToRate(null);
         console.error('Failed to fetch image:', data.message);
       }
       if (!rating) return;
     } catch (error) {
-      alert('Failed to fetch image');
+      alert('Failed to process the request :/ : ' + JSON.stringify(error));
     }
   };
 
