@@ -8,10 +8,10 @@ import {
 import { motion } from 'framer-motion';
 import { Inter } from 'next/font/google';
 import Image from 'next/image';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { mockFaces } from './assets/data/mockFaces';
 import { DownArrow } from './components/iconsComponents/DownArrow';
 import MagicWandIcon from './components/iconsComponents/MagicWand';
-import { mockFaces } from './assets/data/mockFaces';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,6 +19,57 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [currentFaceToRate, setCurrentFaceToRate] = useState<string | null>(
+    null,
+  );
+  const [faceRating, setFaceRating] = useState<number | null>(null);
+
+  const handleRateClick = async (rating: number | undefined) => {
+    try {
+      setCurrentFaceToRate(null);
+      const response = await fetch('/api/fetch-random-face');
+      const data = await response.json();
+      if (response.ok) {
+        setCurrentFaceToRate(data.image);
+        if (!rating) return;
+        console.log('Fetched image:', data.image);
+
+        // Create a Blob from the base64 image
+        const base64Response = await fetch(data.image);
+        const blob = await base64Response.blob();
+
+        // Create FormData and append the Blob
+        const formData = new FormData();
+        formData.append('file', blob, 'face.jpg');
+
+        // Send FormData to the Next.js API route
+        // /api/upload-to-pilouorg
+        const uploadResponse = await fetch(
+          'https://www.pilou.org/azure_beauty_project/upload/',
+          {
+            method: 'POST',
+            body: formData,
+          },
+        );
+
+        if (uploadResponse.ok) {
+          console.log('Image uploaded successfully');
+        } else {
+          console.error('Image upload failed');
+        }
+      } else {
+        setCurrentFaceToRate(null);
+        console.error('Failed to fetch image:', data.message);
+      }
+      if (!rating) return;
+    } catch (error) {
+      alert('Failed to fetch image');
+    }
+  };
+
+  useEffect(() => {
+    handleRateClick(undefined);
+  }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -174,7 +225,7 @@ export default function Home() {
         </div>
       </motion.div>
 
-      <section className='h-28'></section>
+      <section className='h-96'></section>
 
       <motion.section
         initial={{ opacity: 0 }}
@@ -259,42 +310,58 @@ export default function Home() {
           </div>
         )} */}
       </motion.section>
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className='flex w-full flex-col items-center border justify-around rounded-2xl mt-4 p-4 lg:items-start lg:flex-row border-neutral-700 bg-gray-100 dark:bg-neutral-800/30'
+      >
+        <div className='group rounded-lg border border-transparent px-5 py-4 transition-colors mb-10 lg:mb-0 lg:mr-10'>
+          <h2 className='mb-3 text-2xl font-semibold'>
+            Contribute to the model training
+          </h2>
+          <div className='flex flex-col items-center justify-between space-y-8'>
+            {currentFaceToRate ? (
+              <div>
+                <Image
+                  className='rounded-3xl'
+                  src={currentFaceToRate}
+                  alt='Fetched face rating'
+                  width={256}
+                  height={256}
+                  priority
+                />
+              </div>
+            ) : (
+              <div className='py-8 flex items-center font-semibold h-64 text-xl animate-pulse'>
+                Loading ...
+              </div>
+            )}
+            <div
+              className={`flex space-x-5 ${!currentFaceToRate && 'pointer-events-none opacity-30'}`}
+            >
+              {Array.from([1, 2, 3, 4, 5]).map(i => (
+                <button
+                  key={i}
+                  onClick={() => handleRateClick(i)}
+                  className='px-4 py-2 hover:bg-blue-500 border border-gray-500 text-white rounded-lg'
+                >
+                  {i}
+                </button>
+              ))}
+              <button
+                onClick={() => handleRateClick(undefined)}
+                className='rounded-lg border hover:bg-slate-400/30 border-gray-500 p-2'
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.section>
     </main>
   );
 }
-// {
-//     "id": "70604ad6-8db4-44a9-b1b8-e24f67c6cfda",
-//     "project": "eaec1732-b7f7-462b-baf8-46d9ba7aedc2",
-//     "iteration": "f2bd2ea7-fe7c-41cf-8fbf-a3d06bad44f7",
-//     "created": "2024-06-07T13:27:56.131Z",
-//     "predictions": [
-//         {
-//             "probability": 0.9201728,
-//             "tagId": "ee4a294a-711a-47ca-bc2c-2a3b40b8ff2c",
-//             "tagName": "3"
-//         },
-//         {
-//             "probability": 0.05030095,
-//             "tagId": "585dc096-2db1-4698-bbb1-393b4eec1a73",
-//             "tagName": "4"
-//         },
-//         {
-//             "probability": 0.029526105,
-//             "tagId": "269d7c4f-b596-49d3-a988-74751e7ac598",
-//             "tagName": "2"
-//         },
-//         {
-//             "probability": 5.7301055E-08,
-//             "tagId": "94de266d-6af0-4584-9b0c-69f4d7ef7571",
-//             "tagName": "1"
-//         },
-//         {
-//             "probability": 4.3157595E-08,
-//             "tagId": "3054fead-006b-41ee-9bc8-ec637457ef15",
-//             "tagName": "5"
-//         }
-//     ]
-// }
 interface PredictionResponse {
   id: string;
   project: string;
@@ -332,14 +399,12 @@ async function makePrediction(
     );
 
     if (!response.ok) {
-      alert(`An error occurred: ${response.statusText}`);
       return undefined;
     }
 
     const predictionResponse: PredictionResponse = await response.json();
     return predictionResponse;
   } catch (error) {
-    alert('An error occurred while making the prediction');
     return undefined;
   }
 }
@@ -355,5 +420,6 @@ function getRatingFromPrediction(
     0,
   );
   console.log('finalRating', finalRating);
-  return Math.round(finalRating * 100) / 100;
+  // tofixedd
+  return finalRating.toFixed(2) as unknown as number;
 }
