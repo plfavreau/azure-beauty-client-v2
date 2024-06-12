@@ -395,7 +395,7 @@ async function makePrediction(
 
   try {
     const response = await fetch(
-      'https://projetazureprediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/eaec1732-b7f7-462b-baf8-46d9ba7aedc2/classify/iterations/Iteration1/image',
+      'https://projetazureprediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/eaec1732-b7f7-462b-baf8-46d9ba7aedc2/classify/iterations/Iteration2/image',
       requestOptions,
     );
 
