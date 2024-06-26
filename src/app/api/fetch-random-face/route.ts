@@ -1,5 +1,3 @@
-// pages/api/fetch-image.js
-
 import { NextResponse } from 'next/server';
 
 const FACES_GENERATOR_URL = 'https://thispersondoesnotexist.com';
@@ -16,13 +14,9 @@ export async function GET() {
       throw new Error(`Error fetching image: ${response.statusText}`);
     }
 
-    // Convert response to arrayBuffer
     const arrayBuffer = await response.arrayBuffer();
-
-    // Convert arrayBuffer to base64
     const base64Image = Buffer.from(arrayBuffer).toString('base64');
 
-    // Respond with base64 image data
     return new NextResponse(
       JSON.stringify({ image: `data:image/jpeg;base64,${base64Image}` }),
       {
