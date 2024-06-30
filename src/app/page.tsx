@@ -7,6 +7,7 @@ import InfiniteCarousel from './components/carousel';
 import HeaderSection from './components/headerSection';
 import InferenceDisplay from './components/inferenceDisplay';
 import TryByYourselfSection from './components/tryByYourselfSection';
+import TrainingSection from './components/trainingSection';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,18 @@ export default function Home() {
       <TryByYourselfSection />
       <section className='h-96'></section>
       <InferenceDisplay />
+      <section className='h-4'></section>
+      <TrainingSection />
+      <div className='flex items-center justify-center pt-8'>
+        <Image
+          className='rounded-3xl'
+          src='/azure_beauty.png'
+          alt='Azure Beauty Logo'
+          width={150}
+          height={75}
+          priority
+        />
+      </div>
     </main>
   );
 }

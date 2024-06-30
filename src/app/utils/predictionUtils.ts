@@ -11,6 +11,5 @@ export function getRatingFromPrediction(
     0,
   );
   console.log('finalRating', finalRating);
-  // tofixedd
   return finalRating.toFixed(2) as unknown as number;
 }

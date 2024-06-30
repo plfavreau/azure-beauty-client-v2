@@ -5,8 +5,7 @@ export async function makePrediction(
 ): Promise<PredictionResponse | undefined> {
   const base64Response = await fetch(image);
   const blob = await base64Response.blob();
-  const url = 'http://localhost:8080/image'
-
+  const url = 'http://localhost:8080/image';
 
   const requestOptions = {
     method: 'POST',
@@ -14,10 +13,7 @@ export async function makePrediction(
   };
 
   try {
-    const response = await fetch(
-      url,
-      requestOptions,
-    );
+    const response = await fetch(url, requestOptions);
 
     if (!response.ok) {
       return undefined;

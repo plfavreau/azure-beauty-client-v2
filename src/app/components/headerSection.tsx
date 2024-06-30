@@ -35,7 +35,7 @@ export default function HeaderSection() {
         }}
         className='text-lg mb-8'
       >
-        Do you really need surgery ?
+        Face the facts: do you really need cosmetic surgery?
       </motion.p>
       <motion.p
         initial={{
@@ -52,7 +52,18 @@ export default function HeaderSection() {
         }}
         className='text-lg font-semibold'
       >
-        Join the <strong>thousands</strong> of satisfied users...
+        <p
+          className='pb-4 font-normal
+        '
+        >
+          You've arrived on this site because you're likely considering surgery.
+          However, this is not without risks and should not be taken lightly.
+          Our site will help you determine your needs based on beauty criteria
+          certified by our <strong>experts</strong>.
+        </p>
+        <p className='font-normal'>
+          Join the <strong>thousands</strong> of satisfied users...
+        </p>
       </motion.p>
       <motion.div
         initial={{
