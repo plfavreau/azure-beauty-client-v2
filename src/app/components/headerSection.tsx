@@ -52,10 +52,7 @@ export default function HeaderSection() {
         }}
         className='text-lg font-semibold'
       >
-        <p
-          className='pb-4 font-normal
-        '
-        >
+        <p className='pb-4 font-normal'>
           You've arrived on this site because you're likely considering surgery.
           However, this is not without risks and should not be taken lightly.
           Our site will help you determine your needs based on beauty criteria
